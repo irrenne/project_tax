@@ -1,0 +1,47 @@
+.register {
+    background: #f1f7fc;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+    width: 65%;
+    height: 70%;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.container {
+    background-color: #9fcdff;
+    color: #4f5354;
+    border-radius: 7px;
+    display: table;
+    padding: 20px;
+    max-width: 900px;
+    width: 80%;
+    height: 80%;
+    margin: auto;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+    background: #f7f9fc;
+    border: none;
+    border-bottom: 1px solid #dfe7f1;
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    color: inherit;
+    text-indent: 6px;
+    height: 40px;
+}
+
+.register form .btn-primary {
+    display: flex;
+    justify-self: right;
+}
