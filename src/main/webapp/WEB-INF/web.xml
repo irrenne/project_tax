@@ -12,6 +12,15 @@
         <exception-type>java.lang.Throwable</exception-type>
         <location>/WEB-INF/jsp/error.jsp</location>
     </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/jsp/error-404.jsp</location>
+    </error-page>
+
+    <context-param>
+        <param-name>uploadDirectory</param-name>
+        <param-value>/Users/macbook/Desktop/temp/</param-value>
+    </context-param>
 
     <request-character-encoding>UTF-8</request-character-encoding>
 

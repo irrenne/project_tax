@@ -1,44 +1,51 @@
 package com.epam.tax.services.impl;
 
-import com.epam.tax.dao.impl.UserDao;
+import com.epam.tax.dao.impl.UserDaoImpl;
 import com.epam.tax.entities.Role;
 import com.epam.tax.entities.User;
 import com.epam.tax.services.UserService;
 import com.epam.tax.servlets.util.PasswordHash;
+import com.epam.tax.servlets.util.Validation;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
+    private final Validation validation;
+    private final UserDaoImpl userDao;
 
-    @Override
-    public boolean insert(User user) throws SQLException {
-        return UserDao.insertUser(user);
+    public UserServiceImpl() {
+        validation = new Validation();
+        userDao = new UserDaoImpl();
     }
 
     @Override
-    public boolean update(User user) throws SQLException {
-        return UserDao.updateUser(user);
+    public boolean insert(User user) {
+        return userDao.insertUser(user);
     }
 
     @Override
-    public boolean delete(User user) throws SQLException {
-        return UserDao.deleteUser(user);
+    public boolean update(User user) {
+        return userDao.updateUser(user);
     }
 
     @Override
-    public User getById(Long id) throws SQLException {
-        return UserDao.getUserById(id);
+    public boolean delete(User user) {
+        return userDao.deleteUser(user);
     }
 
     @Override
-    public User getByLogin(String login) throws SQLException {
-        return UserDao.getUserByLogin(login);
+    public User getById(Long id) {
+        return userDao.getUserById(id);
     }
 
     @Override
-    public List<User> findAll() throws SQLException {
-        return UserDao.findAllUsers();
+    public User getByLogin(String login) {
+        return userDao.getUserByLogin(login);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userDao.findAllUsers();
     }
 
     @Override
@@ -52,13 +59,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isValid(String login, String password, User user) throws Exception {
+    public boolean isValid(String login, String password, User user) {
         if (checkValidInput(login) && checkValidInput(password)) {
-            return (user != null && PasswordHash.checkPassword(password, user.getPassword()));
+            return (user != null && PasswordHash.checkPassword(password, user.getPassword()) && login.equals(user.getLogin()));
         }
-        throw new Exception("invalid input");
+        return false;
     }
 
+    @Override
+    public boolean checkValidUserInputRegister(String name, String surname, String login, String password) {
+        return validation.validName(name) && validation.validSurname(surname)
+                && validation.validLogin(login) && validation.validPassword(password);
+    }
+
+    @Override
     public boolean checkValidInput(String input) {
         return input != null && !input.isEmpty();
     }

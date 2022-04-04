@@ -40,8 +40,7 @@
     text-indent: 6px;
     height: 40px;
 }
-
 .register form .btn-primary {
-    display: flex;
-    justify-self: right;
+    background-color:#56baed;
+    margin-left: 40px;
 }

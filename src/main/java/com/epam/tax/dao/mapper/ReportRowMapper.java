@@ -14,13 +14,13 @@ public class ReportRowMapper implements RowMapper<Report> {
         try {
             report.setId(resultSet.getLong("id"));
             report.setDateOfCreation(resultSet.getDate("date"));
-            report.setType(resultSet.getString("type"));
-            report.setDocument(resultSet.getBytes("document_blob"));
+            report.setType(resultSet.getString("type_name").toLowerCase());
             report.setStatus(Status.valueOf(resultSet.getString("status_name").toUpperCase()));
             report.setUserId(resultSet.getLong("user_id"));
             report.setComment(resultSet.getString("comment"));
             report.setInspectorId(resultSet.getLong("inspector_id"));
             report.setFileName(resultSet.getString("file_name"));
+            report.setStatusId(resultSet.getInt("status_id"));
             return report;
         } catch (SQLException e) {
             throw new RuntimeException(e);

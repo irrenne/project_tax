@@ -20,7 +20,6 @@ public class DBManager {
         return instance;
     }
 
-
     public Connection getConnection() throws SQLException {
         try {
             if (dataSource == null) {
@@ -29,12 +28,10 @@ public class DBManager {
             }
 
         } catch (NamingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to create the database connection.");
         }
-
         return dataSource.getConnection();
     }
-
 }
 
 

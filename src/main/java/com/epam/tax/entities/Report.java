@@ -9,7 +9,6 @@ public class Report {
     private String type;
     private Date dateOfCreation;
     private int statusId;
-    private byte[] document;
     private long userId;
     private Status status;
     private String comment;
@@ -48,22 +47,6 @@ public class Report {
         this.status = status;
     }
 
-    public byte[] getDocument() {
-        return document;
-    }
-
-    public void setDocument(byte[] document) {
-        this.document = document;
-    }
-
-    public static Report createReport(String type, Date dateOfCreation, String filename) {
-        Report report = new Report();
-        report.type = type;
-        report.dateOfCreation = dateOfCreation;
-        report.fileName = filename;
-        return report;
-    }
-
     public long getUserId() {
         return userId;
     }
@@ -78,29 +61,6 @@ public class Report {
 
     public void setStatusId(int status_id) {
         this.statusId = status_id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Report report = (Report) o;
-        return id == report.id && Objects.equals(type, report.type) && Objects.equals(dateOfCreation, report.dateOfCreation);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, type, dateOfCreation);
-    }
-
-    @Override
-    public String toString() {
-        return "Report{" +
-                "id=" + id +
-                ", type='" + type + '\'' +
-                ", dateOfCreation=" + dateOfCreation +
-                " userid =" + userId +
-                ", filename=" + fileName;
     }
 
     public String getComment() {
@@ -125,5 +85,42 @@ public class Report {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+
+    public static Report createReport(String type, Date dateOfCreation, String filename) {
+        Report report = new Report();
+        report.type = type;
+        report.dateOfCreation = dateOfCreation;
+        report.fileName = filename;
+        return report;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Report report = (Report) o;
+        return id == report.id && Objects.equals(type, report.type) && Objects.equals(dateOfCreation, report.dateOfCreation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type, dateOfCreation);
+    }
+
+    @Override
+    public String toString() {
+        return "Report{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", dateOfCreation=" + dateOfCreation +
+                ", statusId=" + statusId +
+                ", userId=" + userId +
+                ", status=" + status +
+                ", comment='" + comment + '\'' +
+                ", inspectorId=" + inspectorId +
+                ", fileName='" + fileName + '\'' +
+                '}';
     }
 }

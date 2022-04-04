@@ -2,8 +2,8 @@ package com.epam.tax.servlets.user;
 
 import com.epam.tax.entities.User;
 import com.epam.tax.services.impl.UserServiceImpl;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,15 +18,12 @@ public class LoginServlet extends HttpServlet {
     private static final Logger log = LogManager.getLogger(LoginServlet.class);
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("LoginServlet.doGet");
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println("LoginServlet.doPost");
-
         String login = request.getParameter("login");
         String password = request.getParameter("password");
         try {
@@ -37,12 +34,12 @@ public class LoginServlet extends HttpServlet {
                 request.getSession().setAttribute("user", user);
                 request.getSession().setAttribute("role", user.getRole());
                 response.sendRedirect(request.getContextPath() + "/home");
-                log.info("%---------------- SUCCESS --------------------%, user is logged in");
+                log.info("%---------------- SUCCESS --------------------% user is logged in");
                 return;
             }
         } catch (Exception e) {
             log.error(e.getMessage());
-            response.sendRedirect("WEB-INF/jsp/error.jsp");
+            throw new RuntimeException(e);
         }
         response.sendRedirect(request.getContextPath() + "/login");
     }

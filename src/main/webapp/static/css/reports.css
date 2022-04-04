@@ -1,0 +1,16 @@
+.btn-light-moon {
+    background: #FFEFBA; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #FFFFFF, #FFEFBA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    color: #000;
+}
+
+.activePage a {
+    color: #6c88a6
+}
+
+.statistics {
+    margin-bottom: 30px;
+    margin-top: 10px;
+    color: #535354;
+}

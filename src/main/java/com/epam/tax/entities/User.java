@@ -59,6 +59,14 @@ public class User {
         this.roleId = roleId;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
     public static User createUser(String login, String name, String surname, String password) {
         User user = new User();
         user.login = login;
@@ -73,7 +81,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id  && Objects.equals(name, user.name) && Objects.equals(surname, user.surname);
+        return id == user.id && Objects.equals(name, user.name) && Objects.equals(surname, user.surname);
     }
 
     @Override
@@ -84,14 +92,6 @@ public class User {
     @Override
     public String toString() {
         return id + " " + name + " " + surname + " " + login + " " + role;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 }
 

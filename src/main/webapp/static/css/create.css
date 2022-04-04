@@ -1,6 +1,5 @@
 .container1 {
     color: #68696b;
-    /*background-color: #9fcdff;*/
     background-color: #f1f7fc;
     position: fixed;
     top: 0;
@@ -27,4 +26,31 @@
 .align-content-end {
     bottom: 0;
     right: 0;
+}
+
+.activePage a {
+    color: #6c88a6
+}
+
+.alert {
+    position: absolute;
+    z-index: 999999;
+    width: 80%;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 35px 10px 14px;
+    margin-bottom: 20px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.d-flex{
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
+.d-flex.flex-row{
+    margin-right: 120px;
 }

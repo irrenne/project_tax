@@ -21,7 +21,7 @@
         <c:forEach begin="1" end="${noOfPages}" var="i">
 
             <li class="page-item"><a class="page-link"
-                                     href="${pageContext.request.contextPath}/${fn:toLowerCase(user.role)}/reports?page=${i}">${i}</a>
+                                     href="${pageContext.request.contextPath}/${fn:toLowerCase(user.role)}/reports?${query}&page=${i}">${i}</a>
             </li>
 
         </c:forEach>

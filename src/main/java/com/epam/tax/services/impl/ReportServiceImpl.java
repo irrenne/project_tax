@@ -1,140 +1,87 @@
 package com.epam.tax.services.impl;
 
-import com.epam.tax.dao.impl.ReportDao;
-import com.epam.tax.dao.impl.UserDao;
+import com.epam.tax.dao.impl.ReportDaoImpl;
+import com.epam.tax.dao.impl.UserDaoImpl;
 import com.epam.tax.entities.Report;
+import com.epam.tax.entities.Type;
 import com.epam.tax.entities.User;
+import com.epam.tax.exceptions.XMLException;
 import com.epam.tax.services.ReportService;
 import com.epam.tax.xml.ReportXml;
 import com.epam.tax.xml.SAXController;
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import java.io.*;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.tax.constants.Constants.FONT_FILENAME;
+import static com.epam.tax.constants.Queries.SQL_GET_REPORTS_PAGINATION;
+import static com.epam.tax.constants.Queries.SQL_GET_REPORTS_PAGINATION_FOR_USER;
+
 public class ReportServiceImpl implements ReportService {
-    @Override
-    public boolean insert(Report report, ReportXml reportXml) throws SQLException, IOException {
-        try {
-            report.setDocument(getByteArrayFromFile(getGeneratedPdfFile(report, reportXml)));
-            return ReportDao.insertReport(report);
-        } catch (SQLException | FileNotFoundException | DocumentException | URISyntaxException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    private final ReportDaoImpl reportDao;
+    private final UserDaoImpl userDao;
+
+    public ReportServiceImpl() {
+        reportDao = new ReportDaoImpl();
+        userDao = new UserDaoImpl();
     }
 
     @Override
-    public boolean update(Report report, ReportXml reportXml) throws SQLException, IOException {
-        try {
-            report.setDocument(getByteArrayFromFile(getGeneratedPdfFile(report, reportXml)));
-            return ReportDao.updateReport(report);
-        } catch (SQLException | FileNotFoundException | DocumentException | URISyntaxException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public boolean insert(Report report) {
+        return reportDao.insertReport(report);
     }
 
     @Override
-    public boolean delete(Report report) throws SQLException {
-        try {
-            return ReportDao.deleteReport(report);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public boolean update(Report report) {
+        return reportDao.updateReport(report);
     }
 
     @Override
-    public boolean deleteById(Long id) throws SQLException {
-        try {
-            Report report = ReportDao.getReportById(id);
-            return ReportDao.deleteReport(report);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public boolean delete(Report report) {
+        return reportDao.deleteReport(report);
     }
 
     @Override
-    public Report getById(Long id) throws SQLException {
-        try {
-            return ReportDao.getReportById(id);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public boolean deleteById(Long id) {
+        Report report = reportDao.getReportById(id);
+        return reportDao.deleteReport(report);
     }
 
     @Override
-    public Report getByType(String type) throws SQLException {
-        try {
-            return ReportDao.getReportByType(type);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public Report getById(Long id) {
+        return reportDao.getReportById(id);
     }
 
     @Override
-    public List<Report> findAll() throws SQLException {
-        try {
-            return ReportDao.findAllReports();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public Report getByType(String type) {
+        return reportDao.getReportByType(type);
     }
 
     @Override
-    public List<Report> findAll(User user) throws SQLException {
-        try {
-            return ReportDao.findAllReportsForUser(user);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    public List<Report> findAll(Long langId) {
+        return reportDao.findAllReports(langId);
     }
 
-    public boolean updateInspector(Report report) throws SQLException, IOException {
-        try {
-            return ReportDao.updateReportInspector(report);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    @Override
+    public List<Report> findAll(User user) {
+        return reportDao.findAllReportsForUser(user);
     }
 
-    public List<Report> findAllReportsForUser(int offset, int noOfRecords, User user) throws SQLException {
-        try {
-            return ReportDao.viewAllReportsForUser(offset, noOfRecords, user);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
+    @Override
+    public boolean updateInspector(Report report) {
+        return reportDao.updateReportInspector(report);
     }
 
-    public List<Report> findAllReportsPagination(int offset, int noOfRecords) throws SQLException {
-        try {
-            return ReportDao.viewAllReports(offset, noOfRecords);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException();
-        }
-    }
-
-    public List<User> findInspectors(List<Report> reports) throws SQLException {
+    @Override
+    public List<User> findInspectors(List<Report> reports) {
         List<User> inspectors = new ArrayList<>();
         for (Report report : reports) {
-            User inspector = UserDao.getUserById(report.getInspectorId());
+            User inspector = userDao.getUserById(report.getInspectorId());
             if (inspector != null && !inspectors.contains(inspector)) {
                 inspectors.add(inspector);
             }
@@ -142,73 +89,152 @@ public class ReportServiceImpl implements ReportService {
         return inspectors;
     }
 
+    @Override
+    public void generatePDF(Report report, OutputStream outputStream, String pathTargetFolders) throws DocumentException, IOException, XMLException {
+        User user = userDao.getUserById(report.getUserId());
 
-    private Document getGeneratedPdfFile(Report report, ReportXml reportXml) throws IOException, DocumentException, URISyntaxException, SQLException {
-        User user = UserDao.getUserById(report.getUserId());
-        //   Path targetPath = Paths.get(ReportServiceImpl.class.getResource("/").toURI()).getParent();
-        Path targetPath = Path.of("/Users/macbook/Desktop/temp/");
+        BaseFont bf = BaseFont.createFont(FONT_FILENAME, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+        Font font = new Font(bf, 20, Font.NORMAL);
+        ReportXml reportXml = readXml(pathTargetFolders + user.getLogin() + "/" + report.getFileName());
 
-        System.out.println(targetPath);
-
-
-        OutputStream file = new FileOutputStream(targetPath + "/file.pdf");
         Document document = new Document();
-        PdfWriter.getInstance(document, file);
+        PdfWriter.getInstance(document, outputStream);
         document.open();
-        Paragraph paragraph = new Paragraph("Report");
+        Paragraph paragraph = new Paragraph("Звіт", font);
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add("date: " + report.getDateOfCreation());
+        paragraph.add("Дата: " + report.getDateOfCreation());
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add("This document is property of " + user.getName() + " " + user.getSurname() + ".");
+        paragraph.add("Власник звіту " + user.getName() + " " + user.getSurname() + ".");
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add("Works in " + reportXml.getCompany() + ".");
+        paragraph.add("Працює в " + reportXml.getCompany() + ".");
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add("Income for month " + reportXml.getSalary() + ".");
+        paragraph.add("Місячний дохід становить " + reportXml.getSalary() + " гривників.");
 
         document.add(paragraph);
         document.close();
-        file.close();
-        return document;
     }
 
-    private byte[] getByteArrayFromFile(final Document handledDocument) throws IOException, URISyntaxException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        Path targetPath = Paths.get(ReportServiceImpl.class.getResource("/").toURI()).getParent();
-        Path targetPath = Path.of("/Users/macbook/Desktop/temp/");
-
-        final InputStream in = new FileInputStream(targetPath + "/file.pdf");
-        final byte[] buffer = new byte[500];
-
-        int read = -1;
-        while ((read = in.read(buffer)) > 0) {
-            baos.write(buffer, 0, read);
-        }
-        in.close();
-
-        return baos.toByteArray();
-    }
-
-
-    public ReportXml readXml(String pathXmlFile) {
-//        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-//        Source schemaFile = new StreamSource(new File("report.xsd"));
-//        try {
-//            Schema schema = factory.newSchema(schemaFile);
-//            Validator validator = schema.newValidator();
-//            validator.validate(new StreamSource(new File(pathXmlFile)));
-//        } catch (IOException | SAXException e) {
-//            e.printStackTrace();
-//        }
-
+    @Override
+    public ReportXml readXml(String pathXmlFile) throws XMLException {
         SAXController saxController = new SAXController(pathXmlFile);
-        ReportXml reportXml = null;
+        ReportXml reportXml;
         try {
             reportXml = saxController.parseSAX();
-            System.out.println(reportXml);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new XMLException("problem with xml file", e);
         }
         return reportXml;
     }
-}
 
+    @Override
+    public Long setLanguage(String lang) {
+        if (lang != null && lang.equals("en")) {
+            return 1L;
+        }
+        return 2L;
+    }
+
+    @Override
+    public List<Report> findAllReportsOrderByTypeForUser(int offset, int noOfRecords, User user, Long langId, Integer status, String order) {
+        StringBuilder query = new StringBuilder(SQL_GET_REPORTS_PAGINATION_FOR_USER);
+        if (status != null) {
+            query.append("AND reports.status_id=? ");
+        }
+        if (order != null) {
+            query.append("ORDER BY ").append(order);
+        }
+        query.append(" limit ").append(offset).append(", ").append(noOfRecords);
+
+        return reportDao.viewAllReportsForUser(user, langId, query.toString(), status);
+
+    }
+
+    @Override
+    public List<Report> findAllReportsPagination(int offset, int noOfRecords, Long langId, Integer status, String order, Long userId) {
+        StringBuilder query = new StringBuilder(SQL_GET_REPORTS_PAGINATION);
+        if (status != null) {
+            query.append("AND reports.status_id=? ");
+        }
+        if (userId != null) {
+            query.append("AND reports.user_id=? ");
+        }
+        if (order != null) {
+            query.append("ORDER BY ").append(order);
+        }
+        query.append(" limit ").append(offset).append(", ").append(noOfRecords);
+
+        return reportDao.viewAllReports(langId, query.toString(), status, userId);
+
+    }
+
+    @Override
+    public int submittedReports(List<Report> reports, Long userId) {
+        int count = 0;
+        if (userId == null) {
+            for (Report report : reports) {
+                if (report.getStatusId() == 0) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        for (Report report : reports) {
+            if (report.getStatusId() == 0 && report.getUserId() == userId) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public int confirmedReports(List<Report> reports, Long userId) {
+        int count = 0;
+        if (userId == null) {
+            for (Report report : reports) {
+                if (report.getStatusId() == 1) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        for (Report report : reports) {
+            if (report.getStatusId() == 1 && report.getUserId() == userId) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public int deniedReports(List<Report> reports, Long userId) {
+        int count = 0;
+        if (userId == null) {
+            for (Report report : reports) {
+                if (report.getStatusId() == 2) {
+                    count++;
+                }
+            }
+            return count;
+        }
+        for (Report report : reports) {
+            if (report.getStatusId() == 2 && report.getUserId() == userId) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean checkValidInput(String input) {
+        return input != null && !input.isEmpty();
+    }
+
+    @Override
+    public boolean checkValidType(String test) {
+        for (Type c : Type.values()) {
+            if (c.name().equals(test)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

@@ -1,6 +1,7 @@
 DROP database IF EXISTS schema_tax;
 CREATE database schema_tax character set utf8;
 USE schema_tax;
+
 create table language
 (
     id        bigint auto_increment
@@ -12,6 +13,11 @@ create table language
         unique (lang_name)
 );
 
+INSERT INTO language
+VALUES (DEFAULT, 'en');
+INSERT INTO language
+VALUES (DEFAULT, 'uk');
+
 create table roles
 (
     id        bigint      not null
@@ -19,8 +25,8 @@ create table roles
     role_name varchar(50) not null,
     constraint roles_id_uindex
         unique (id)
-)
-    charset = utf8;
+);
+
 INSERT INTO roles
 VALUES (1, 'inspector');
 INSERT INTO roles
@@ -40,7 +46,7 @@ VALUES (0, 'submitted');
 INSERT INTO statuses
 VALUES (1, 'confirmed');
 INSERT INTO statuses
-VALUES (2, 'not confirmed');
+VALUES (2, 'not_confirmed');
 
 create table users
 (
@@ -58,20 +64,17 @@ create table users
     constraint role_id
         foreign key (role_id) references roles (id)
 );
-INSERT INTO users
-VALUES (1, 'Андрій', 1, 'інспектор', '123', 'Бабай');
+
 create table reports
 (
-    id            bigint auto_increment
+    id           bigint auto_increment
         primary key,
-    date          date         not null,
-    status_id     int          not null,
-    type          varchar(50)  not null,
-    user_id       bigint       not null,
-    comment       varchar(256) null,
-    document_blob mediumblob   null,
-    inspector_id  bigint       null,
-    file_name     varchar(50)  not null,
+    date         date         not null,
+    status_id    int          not null,
+    user_id      bigint       not null,
+    comment      varchar(256) null,
+    inspector_id bigint       null,
+    file_name    varchar(50)  not null,
     constraint reports_id_uindex
         unique (id),
     constraint inspector_id
@@ -83,4 +86,14 @@ create table reports
             on delete cascade
 );
 
-
+create table report_type
+(
+    type_name varchar(50) not null,
+    report_id bigint      not null,
+    lang_id   bigint      not null,
+    constraint report_type_language_id_fk
+        foreign key (lang_id) references language (id),
+    constraint report_type_reports_id_fk
+        foreign key (report_id) references reports (id)
+            on delete cascade
+);

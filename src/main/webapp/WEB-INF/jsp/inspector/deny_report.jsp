@@ -30,7 +30,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<c:url value="#"/>" class="nav-link px-0 align-middle">
+                        <a href="<c:url value="/inspector/statistics"/>" class="nav-link px-0 align-middle">
                             <i class="fs-4 bi-people"></i> <span
                                 class="ms-1 d-none d-sm-inline"><fmt:message key="label.statistics"/></span> </a>
                     </li>
@@ -42,9 +42,11 @@
             <form action="<c:url value="/inspector/deny_report"/>" method="post">
                 <div class="form-group">
                     <label for="reason"><fmt:message key="label.enterReason"/></label>
-                    <textarea class="form-control" name="reason" id="reason" rows="3"></textarea>
+                    <textarea class="form-control" name="reason" id="reason" rows="3" maxlength="255" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary"><fmt:message key="label.submitReason"/></button>
+                <div class="d-flex flex-row justify-content-end mt-auto">
+                    <button type="submit" class="btn btn-primary"><fmt:message key="label.submitReason"/></button>
+                </div>
             </form>
         </div>
     </div>
